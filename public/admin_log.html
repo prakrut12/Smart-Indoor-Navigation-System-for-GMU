@@ -45,7 +45,7 @@ const BASE_URL = "https://gmu-nav.onrender.com";
 
 document.addEventListener("DOMContentLoaded", async () => {
 
-    // 🔐 CHECK ADMIN LOGIN
+    // CHECK ADMIN LOGIN
     if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
         window.location.href = "admin.html";
         return;
@@ -54,10 +54,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const logForm = document.getElementById("log-form");
     const clearLogsBtn = document.getElementById("clear-logs-btn");
 
-    // Load logs immediately
+    // Load logs initially
     fetchLogs();
 
-    // ➤ Log an update
+    // CREATE NEW LOG
     logForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const description = document.getElementById("update_description").value.trim();
@@ -71,7 +71,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             const response = await fetch(`${BASE_URL}/api/logs`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ description })
+                body: JSON.stringify({
+                    admin_user: "admin",   //  🔥 REQUIRED FIELD
+                    description: description
+                })
             });
 
             const result = await response.json();
@@ -89,20 +92,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    // ➤ Clear all logs (moves to recycle bin)
+    // CLEAR LOGS (move to recycle bin)
     clearLogsBtn.addEventListener("click", async () => {
         const isConfirmed = confirm("Move ALL logs to recycle bin?");
         if (!isConfirmed) return;
 
         try {
-            const response = await fetch(`${BASE_URL}/api/logs`, { 
-                method: "DELETE" 
-            });
-
+            const response = await fetch(`${BASE_URL}/api/logs`, { method: "DELETE" });
             const result = await response.json();
             alert(result.message);
             fetchLogs();
-
         } catch (error) {
             alert("Error clearing logs.");
             console.error(error);
@@ -110,7 +109,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 });
 
-// ➤ Fetch logs from backend
+// FETCH LOGS
 async function fetchLogs() {
     try {
         const response = await fetch(`${BASE_URL}/api/logs`);
@@ -123,7 +122,7 @@ async function fetchLogs() {
     }
 }
 
-// ➤ Fill table with logs
+// POPULATE TABLE
 function populateLogTable(logData) {
     const table = document.getElementById("log-table");
 
