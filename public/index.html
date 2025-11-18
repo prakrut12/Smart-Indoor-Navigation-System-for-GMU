@@ -9,24 +9,53 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .card-animate {
+            /* opacity: 0; */
+            /* transform: translateY(30px); */
+            transform: scale(1);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .card-animate.is-visible {
+            opacity: 1;
+            transform: scale(1.05);
+            /* Revert back after a short delay to create a subtle pop */
+            animation: card-pop 0.3s ease-out forwards;
+        }
+        @keyframes card-pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes glitter {
+            0% { box-shadow: 0 0 0px rgba(255, 215, 0, 0); }
+            50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8); }
+            100% { box-shadow: 0 0 0px rgba(255, 215, 0, 0); }
+        }
+        .card-animate.glitter {
+            animation: glitter 1.5s ease-in-out forwards;
+        }
+    </style>
 </head>
 <body>
+    <!-- Overlay for chatbot popup -->
+    <div class="chatbot-overlay" id="chatbot-overlay"></div>
 
-    <!-- Top Contact Bar -->
+    <!-- Top contact bar -->
     <div class="topbar">
         <div class="container topbar__content">
             <div class="contact-bar">
                 <i class="fa-solid fa-phone"></i> 18001237099
                 <span class="divider">|</span>
                 <i class="fa-solid fa-envelope"></i> info@gmu.ac.in
-            </div>
+              </div>
             <div class="topbar__right">
-                <a href="admin.html" class="btn btn--accent btn--sm">LOGIN</a>
+                <a href="admin.html" class="btn btn--accent btn--sm" style="text-decoration: none;">LOGIN</a>
             </div>
         </div>
     </div>
 
-    <!-- Header -->
+    <!-- Main site header -->
     <header class="site-header">
         <div class="container header__content">
             <div class="logo">
@@ -37,24 +66,30 @@
         </div>
     </header>
 
-    <!-- Hero Section -->
+    <!-- Hero section -->
     <section class="hero">
+        <!-- Hero video background -->
         <div class="hero__video-container">
             <video autoplay loop muted playsinline class="hero__video">
                 <source src="gmv.mp4" type="video/mp4">
+                Your browser does not support the video tag.
             </video>
         </div>
-
+        <!-- Blur filter removed as per instructions -->
         <div class="hero__overlay"></div>
-
         <div class="container hero__content">
             <h1 class="hero__title">GM UNIVERSITY</h1>
-            <p class="hero__subtitle">Navigate, explore, and experience GMU like never before.</p>
-            <p class="hero__desc">Find classrooms, labs, and auditoriums easily across the campus.</p>
+            <p class="hero__subtitle">Navigate, explore, and experience GMU like never before..</p>
+            <p class="hero__desc">
+                Welcome to GMU Campus Navigation – your smart guide across our campus. Easily find classrooms, labs, and auditoriums without confusion.
+            </p>
             <div class="hero__ctas">
                 <a class="btn btn--gold" href="#university-blocks-map" id="explore-now-btn">Explore Now</a>
             </div>
+            
         </div>
+        <button class="carousel_arrow carousel_arrow--left" aria-label="Previous">❮</button>
+        <button class="carousel_arrow carousel_arrow--right" aria-label="Next">❯</button>
 
         <div class="chat-bubble" id="chatbot-icon">
             <div class="chat-bubble__icon">
@@ -62,197 +97,274 @@
             </div>
             <div class="chat-bubble__text">
                 <div class="chat-bubble__title">GMU AI Assistant</div>
+                <!-- <div class="chat-bubble__sub">Talk with our GMU AI Assistant</div> -->
             </div>
         </div>
     </section>
-
+    
+      
     <!-- Blocks Map Section -->
     <section class="blocks-map-section" id="university-blocks-map">
         <div class="container">
             <div class="card large-card">
                 <div class="card__header">University Blocks Map</div>
                 <div class="card__body">
-                    <div class="map-wrapper">
-                        <div class="map-viewport" id="map-viewport">
-                            <iframe src="BLOCKS.html" loading="lazy"></iframe>
+                    <div class="map-wrapper" id="map-wrapper">
+                        <div class="map-viewport" id="map-viewport" aria-label="Interactive campus map">
+                            <iframe src="BLOCKS.html" title="Blocks Map" loading="lazy"></iframe>
                         </div>
-                        <div class="map-controls">
-                            <button class="map-control-btn" id="map-zoom-in">+</button>
-                            <button class="map-control-btn" id="map-zoom-out">−</button>
-                            <button class="map-control-btn" id="map-zoom-reset">⤾</button>
+                        <div class="map-controls" aria-label="Map zoom controls">
+                            <button class="map-control-btn" id="map-zoom-in" aria-label="Zoom in">+</button>
+                            <button class="map-control-btn" id="map-zoom-out" aria-label="Zoom out">−</button>
+                            <button class="map-control-btn" id="map-zoom-reset" aria-label="Reset zoom">⤾</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Engineering Block Cards -->
+      
+    <!-- Cards section (5 cards) -->
+    <div style="height: 5px;"></div>
     <h2 class="section-title">Engineering Block Floors</h2>
     <section class="cards">
         <div class="container cards__grid">
-
             <div class="card card-animate">
                 <div class="card__header">Basement Floor</div>
                 <div class="card__body center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" alt="Building Icon" style="width:64px;height:64px;display:block;margin:0 auto 12px;" />
                     <ul class="list">
-                        <li>Xerox , Society , R&A Dept , CAD Lab</li>
+                        <li>Xerox , Society , R&A Department , CAD Lab </li> 
                     </ul>
                     <a class="btn btn--gold btn--sm" href="0.html">Explore Floor</a>
                 </div>
             </div>
-
             <div class="card card-animate">
                 <div class="card__header">Ground Floor</div>
                 <div class="card__body center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" alt="Building Icon" style="width:64px;height:64px;display:block;margin:0 auto 12px;" />
                     <ul class="list">
-                        <li>Principal Chamber, Main Entrance</li>
+                        <li>Principal Chamber Office, Main Entrance</li>
                     </ul>
                     <a class="btn btn--gold btn--sm" href="1.html">Explore Floor</a>
                 </div>
             </div>
-
             <div class="card card-animate">
                 <div class="card__header">First Floor</div>
                 <div class="card__body center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" alt="Building Icon" style="width:64px;height:64px;display:block;margin:0 auto 12px;" />
                     <ul class="list">
-                        <li>Civil & CS Seminar Halls</li>
+                        <li>Civil & CS Seminar Hall, Labs</li>
                     </ul>
                     <a class="btn btn--gold btn--sm" href="2.html">Explore Floor</a>
                 </div>
             </div>
-
             <div class="card card-animate">
                 <div class="card__header">Second Floor</div>
                 <div class="card__body center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" alt="Building Icon" style="width:64px;height:64px;display:block;margin:0 auto 12px;" />
                     <ul class="list">
-                        <li>Auditorium , EEE & EC Dept</li>
+                        <li>Auditorium , EEE & EC Department, AIML Dept</li>
                     </ul>
                     <a class="btn btn--gold btn--sm" href="3.html">Explore Floor</a>
                 </div>
             </div>
-
             <div class="card card-animate">
                 <div class="card__header">Third Floor</div>
                 <div class="card__body center">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" />
+                    <img src="https://cdn-icons-png.flaticon.com/512/4453/4453227.png" alt="Building Icon" style="width:64px;height:64px;display:block;margin:0 auto 12px;" />
                     <ul class="list">
-                        <li>MBA Auditorium , NCC/NSS</li>
+                        <li>MBA Auditorium, NCC/NSS, Bioinfomatics </li>
                     </ul>
                     <a class="btn btn--gold btn--sm" href="4.HTML">Explore Floor</a>
                 </div>
             </div>
-
         </div>
     </section>
 
-    <!-- Stats -->
+    <!-- Stats banner section -->
     <section class="stats-banner">
         <div class="container stats-banner__content">
             <div class="stats-banner__left">
-                <h2>GM UNIVERSITY</h2>
-                <p>Navigate, explore, and experience GMU like never before...</p>
+                <h2 class="stats-banner__title">GM UNIVERSITY</h2>
+                <p class="stats-banner__tagline">Navigate, explore, and experience GMU like never before.....</p>
+            </div>
+            
+            <div class="stats-banner__right">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">10000+</div>
+                        <div class="stat-label">Students</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number">67</div>
+                        <div class="stat-label">Programs</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number">54</div>
+                        <div class="stat-label">Acres</div>
+                        <div class="stat-sub">Green Vibrant Campus</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number">350+</div>
+                        <div class="stat-label">Experienced Faculty</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Feedback Section -->
+    <!-- Feedback section -->
     <section class="feedback">
         <div class="container feedback__content">
             <h2 class="feedback__title">Share Your Experience</h2>
-            <p class="feedback__subtitle">Help us improve by sharing your feedback</p>
-
+            <p class="feedback__subtitle">Help us improve by sharing your feedback about our website</p>
             <form class="feedback__form">
                 <div class="form-group">
                     <label for="name">Full Name</label>
-                    <input type="text" id="name" required>
+                    <input type="text" id="name" name="name" required placeholder="Enter your full name">
                 </div>
-
                 <div class="form-group">
                     <label for="email">Email Address</label>
-                    <input type="email" id="email" required>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
                 </div>
-
                 <div class="form-group">
                     <label>Your Rating</label>
                     <div class="star-rating">
-                        <input type="radio" id="star5" name="rating" value="5"><label for="star5">&#9733;</label>
-                        <input type="radio" id="star4" name="rating" value="4"><label for="star4">&#9733;</label>
-                        <input type="radio" id="star3" name="rating" value="3"><label for="star3">&#9733;</label>
-                        <input type="radio" id="star2" name="rating" value="2"><label for="star2">&#9733;</label>
-                        <input type="radio" id="star1" name="rating" value="1"><label for="star1">&#9733;</label>
+                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars">&#9733;</label>
+                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars">&#9733;</label>
+                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars">&#9733;</label>
+                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars">&#9733;</label>
+                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star">&#9733;</label>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="feedback">Your Feedback</label>
-                    <textarea id="feedback" rows="4" required></textarea>
+                    <textarea id="feedback" name="feedback" rows="5" required placeholder="Tell us about your experience with our website..."></textarea>
                 </div>
-
                 <button type="submit" class="btn btn--gold">Submit Feedback</button>
             </form>
         </div>
     </section>
 
-    <!-- Chatbot -->
     <div class="chat-window" id="chat-window">
         <div class="chat-header">
             <h3>GMU AI Assistant</h3>
-            <button id="close-chat">X</button>
+            <button class="close-chat" id="close-chat">X</button>
         </div>
-        <div class="chat-body" id="chat-body"></div>
+        <div class="chat-body" id="chat-body">
+            <!-- Chat messages will go here -->
+        </div>
         <div class="chat-input">
-            <input type="text" id="user-input">
-            <button id="mic-btn"><i class="fas fa-microphone"></i></button>
+            <input type="text" id="user-input" placeholder="Ask a question...">
+            <button id="mic-btn" class="icon-button"><i class="fas fa-microphone"></i></button>
             <button id="send-btn">Send</button>
         </div>
     </div>
 
     <script src="app.js"></script>
-
-    <!-- ⭐ FIXED FEEDBACK SCRIPT -->
     <script>
-document.querySelector('.feedback__form').addEventListener('submit', function (event) {
+        document.querySelector('.feedback__form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const form = event.target;
+            const name = form.querySelector('#name').value;
+            const email = form.querySelector('#email').value;
+            const rating = form.querySelector('input[name="rating"]:checked')?.value || 0;
+            const feedback = form.querySelector('#feedback').value;
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            const originalButtonText = submitButton.textContent;
+            submitButton.textContent = 'Submitting...';
+            submitButton.disabled = true;
+
+           const BASE_URL = "https://gmu-nav.onrender.com";
+
+fetch(${BASE_URL}/api/feedback, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        name,
+        email,
+        rating,
+        feedback
+    })
+})
+.then(response => response.json())
+.then(data => {
+    alert("Feedback submitted successfully!");
+    submitBtn.textContent = "Submit";
+    submitBtn.disabled = false;
+})
+.catch(error => {
+    console.error("Error:", error);
+    alert("Sorry, something went wrong. Please try again later.");
+    submitBtn.textContent = "Submit";
+    submitBtn.disabled = false;
+});
+
+                body: JSON.stringify({ name, email, rating, feedback }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Thank you for your feedback!');
+                form.reset(); // Clear the form
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Sorry, something went wrong. Please try again later.');
+            })
+            .finally(() => {
+                submitButton.textContent = originalButtonText;
+                submitButton.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html> 
+
+<script>
+document.querySelector('.feedback__form').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const form = event.target;
-    const name = document.getElementById("name").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const rating = document.querySelector('input[name="rating"]:checked')?.value || 0;
-    const feedback = document.getElementById("feedback").value.trim();
+    const name = form.querySelector('#name').value;
+    const email = form.querySelector('#email').value;
+    const rating = form.querySelector('input[name="rating"]:checked')?.value || 0;
+    const feedback = form.querySelector('#feedback').value;
 
-    const submitBtn = form.querySelector("button[type='submit']");
-    const original = submitBtn.textContent;
+    const submitButton = form.querySelector('button[type="submit"]');
+    const originalButtonText = submitButton.textContent;
 
-    submitBtn.textContent = "Submitting...";
-    submitBtn.disabled = true;
+    submitButton.textContent = 'Submitting...';
+    submitButton.disabled = true;
 
     const BASE_URL = "https://gmu-nav.onrender.com";
 
     fetch(`${BASE_URL}/api/feedback`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, rating, feedback })
     })
-    .then(res => res.json())
+    .then(response => response.json())
     .then(data => {
-        alert("Thank you! Your feedback has been submitted.");
+        alert("Thank you! Feedback submitted successfully.");
         form.reset();
     })
-    .catch(err => {
-        console.error(err);
-        alert("Sorry, something went wrong. Please try again.");
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Sorry, something went wrong. Please try again later.");
     })
     .finally(() => {
-        submitBtn.textContent = original;
-        submitBtn.disabled = false;
+        submitButton.textContent = originalButtonText;
+        submitButton.disabled = false;
     });
 });
-    </script>
-
-</body>
-</html>
+</script>
