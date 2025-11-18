@@ -24,7 +24,10 @@
                     <label for="update_description">Update Description</label>
                     <textarea id="update_description" required placeholder="Describe the change you made (e.g., 'Updated the homepage hero image')."></textarea>
                 </div>
-                <button type="submit" class="btn">Log This Update</button>
+                <button type="button" id="log-btn" onclick="createLog(document.getElementById('update_description').value)">
+    Log This Update
+</button>
+
                 <p id="log-success" style="color: green; margin-top: 10px;"></p>
             </form>
         </div>
