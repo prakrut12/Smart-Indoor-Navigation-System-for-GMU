@@ -18,12 +18,12 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve UI
+// Serve UI files from public folder
 app.use(express.static('public'));
 
-// -----------------------------
+// =============================================================
 // FEEDBACK MODULE
-// -----------------------------
+// =============================================================
 
 // Submit feedback
 app.post('/api/feedback', (req, res) => {
@@ -41,7 +41,7 @@ app.post('/api/feedback', (req, res) => {
   stmt.finalize();
 });
 
-// Display active feedback
+// Fetch active feedback
 app.get('/api/feedback', (req, res) => {
   db.all(
     "SELECT * FROM feedback WHERE is_deleted = 0 ORDER BY submitted_at DESC",
@@ -53,15 +53,13 @@ app.get('/api/feedback', (req, res) => {
   );
 });
 
-// Move feedback to recycle bin
+// Move feedback → recycle bin
 app.delete('/api/feedback', (req, res) => {
   db.run("UPDATE feedback SET is_deleted = 1 WHERE is_deleted = 0", function (err) {
     if (err) return res.status(500).json({ message: 'Error deleting feedback.' });
     res.json({ success: true, message: `${this.changes} moved to recycle bin.` });
   });
 });
-
-// ---- FEEDBACK RECYCLE BIN ----
 
 // Fetch deleted feedback
 app.get('/api/feedback/recyclebin', (req, res) => {
@@ -75,7 +73,7 @@ app.get('/api/feedback/recyclebin', (req, res) => {
   );
 });
 
-// Restore feedback
+// Restore feedback item
 app.post('/api/feedback/recyclebin/restore/:id', (req, res) => {
   db.run("UPDATE feedback SET is_deleted = 0 WHERE id = ?", [req.params.id], function (err) {
     if (err) return res.status(500).json({ message: 'Restore failed.' });
@@ -83,10 +81,10 @@ app.post('/api/feedback/recyclebin/restore/:id', (req, res) => {
   });
 });
 
-// Empty feedback recycle bin
+// Empty recycle bin permanently
 app.delete('/api/feedback/recyclebin/empty', (req, res) => {
   db.run("DELETE FROM feedback WHERE is_deleted = 1", function (err) {
-    if (err) return res.status(500).json({ message: 'Empty recycle bin failed.' });
+    if (err) return res.status(500).json({ message: 'Empty failed.' });
     res.json({ success: true, message: `Deleted ${this.changes} items.` });
   });
 });
@@ -99,11 +97,11 @@ app.get('/api/feedback/average', (req, res) => {
   });
 });
 
-// -----------------------------
+// =============================================================
 // UPDATE LOGS MODULE
-// -----------------------------
+// =============================================================
 
-// Create log
+// Create new update log
 app.post('/api/logs', (req, res) => {
   const { description } = req.body;
 
@@ -117,7 +115,7 @@ app.post('/api/logs', (req, res) => {
   stmt.finalize();
 });
 
-// Get active logs
+// Fetch active logs
 app.get('/api/logs', (req, res) => {
   db.all(
     "SELECT * FROM update_logs WHERE is_deleted = 0 ORDER BY timestamp DESC",
@@ -129,7 +127,7 @@ app.get('/api/logs', (req, res) => {
   );
 });
 
-// Move logs to recycle bin
+// Move logs → recycle bin
 app.delete('/api/logs', (req, res) => {
   db.run("UPDATE update_logs SET is_deleted = 1 WHERE is_deleted = 0", function (err) {
     if (err) return res.status(500).json({ message: 'Error deleting logs.' });
@@ -137,9 +135,7 @@ app.delete('/api/logs', (req, res) => {
   });
 });
 
-// ---- LOGS RECYCLE BIN ----
-
-// Deleted logs list
+// Fetch deleted logs
 app.get('/api/logs/recyclebin', (req, res) => {
   db.all(
     "SELECT * FROM update_logs WHERE is_deleted = 1 ORDER BY timestamp DESC",
@@ -151,7 +147,7 @@ app.get('/api/logs/recyclebin', (req, res) => {
   );
 });
 
-// Restore a log
+// Restore log
 app.post('/api/logs/recyclebin/restore/:id', (req, res) => {
   db.run("UPDATE update_logs SET is_deleted = 0 WHERE id = ?", [req.params.id], function (err) {
     if (err) return res.status(500).json({ message: 'Restore failed.' });
@@ -167,9 +163,9 @@ app.delete('/api/logs/recyclebin/empty', (req, res) => {
   });
 });
 
-// -----------------------------
-// LOGIN MODULE
-// -----------------------------
+// =============================================================
+// LOGIN
+// =============================================================
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -186,7 +182,7 @@ app.post('/api/login', (req, res) => {
   });
 });
 
-// -----------------------------
+// =============================================================
 app.listen(port, host, () => {
   console.log(`Server running on http://${host}:${port}`);
 });
