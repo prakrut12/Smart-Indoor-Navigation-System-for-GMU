@@ -283,11 +283,33 @@
             submitButton.textContent = 'Submitting...';
             submitButton.disabled = true;
 
-            fetch('http://localhost:3000/api/feedback', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+           const BASE_URL = "https://gmu-nav.onrender.com";
+
+fetch(`${BASE_URL}/api/feedback`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        name,
+        email,
+        rating,
+        feedback
+    })
+})
+.then(response => response.json())
+.then(data => {
+    alert("Feedback submitted successfully!");
+    submitBtn.textContent = "Submit";
+    submitBtn.disabled = false;
+})
+.catch(error => {
+    console.error("Error:", error);
+    alert("Sorry, something went wrong. Please try again later.");
+    submitBtn.textContent = "Submit";
+    submitBtn.disabled = false;
+});
+
                 body: JSON.stringify({ name, email, rating, feedback }),
             })
             .then(response => response.json())
