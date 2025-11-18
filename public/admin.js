@@ -1,6 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
+const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
+document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
     const feedbackSection = document.getElementById('feedback-section');
     const loginForm = document.getElementById('login-form');
@@ -8,18 +8,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const averageRatingElement = document.getElementById('average-rating');
     const clearFeedbackBtn = document.getElementById('clear-feedback-btn');
 
-    // Check if user is already logged in (using sessionStorage)
     if (sessionStorage.getItem('isAdminLoggedIn') === 'true') {
         showFeedback();
     }
 
     loginForm.addEventListener('submit', async (event) => {
         event.preventDefault();
+
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch(`${API_BASE}/api/login`, {
+            const response = await fetch(`${BASE_URL}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
@@ -35,13 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             loginError.textContent = 'An error occurred. Please try again.';
-            console.error('Login error:', error);
         }
     });
 
     async function fetchAverageRating() {
         try {
-            const response = await fetch(`${API_BASE}/api/feedback/average`);
+            const response = await fetch(`${BASE_URL}/api/feedback/average`);
             const result = await response.json();
 
             if (response.ok) {
@@ -50,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 averageRatingElement.textContent = `Overall Performance: Error loading rating`;
             }
         } catch (error) {
-            console.error('Error fetching average rating:', error);
             averageRatingElement.textContent = `Overall Performance: Error loading rating`;
         }
     }
@@ -60,19 +58,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isConfirmed) {
             try {
-                const response = await fetch(`${API_BASE}/api/feedback`, {
+                const response = await fetch(`${BASE_URL}/api/feedback`, {
                     method: 'DELETE',
                 });
-
                 const result = await response.json();
                 alert(result.message);
-
-                if (response.ok) {
-                    showFeedback();
-                }
+                if (response.ok) showFeedback();
             } catch (error) {
                 alert('An error occurred while clearing feedback.');
-                console.error('Clear feedback error:', error);
             }
         }
     });
@@ -80,23 +73,23 @@ document.addEventListener('DOMContentLoaded', () => {
     async function showFeedback() {
         loginSection.style.display = 'none';
         feedbackSection.style.display = 'block';
+
         await fetchAverageRating();
 
         try {
-            const response = await fetch(`${API_BASE}/api/feedback`);
-            if (!response.ok) throw new Error('Failed to fetch feedback.');
-
+            const response = await fetch(`${BASE_URL}/api/feedback`);
             const result = await response.json();
+
             populateFeedbackTable(result.data);
         } catch (error) {
             const feedbackTable = document.getElementById('feedback-table');
             feedbackTable.innerHTML = '<tr><td>Error loading feedback.</td></tr>';
-            console.error('Fetch feedback error:', error);
         }
     }
 
     function populateFeedbackTable(feedbackData) {
         const table = document.getElementById('feedback-table');
+
         let tableHTML = `
             <thead>
                 <tr>
