@@ -33,55 +33,29 @@
     </div>
 
     <script>
-const BASE_URL  = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
-
+const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
-
-    // Check login
-    if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
-        window.location.href = "admin.html";
-        return;
-    }
-
-    const emptyBinBtn = document.getElementById("empty-bin-btn");
-
-    fetchRecycledItems();
-
-    emptyBinBtn.addEventListener("click", async () => {
-        if (!confirm("Are you sure you want to permanently empty the recycle bin?")) return;
-        
-        try {
-            const res = await fetch(`${BASE_URL}/api/feedback/recyclebin/empty`, {
-                method: "DELETE"
-            });
-            const result = await res.json();
-            alert(result.message);
-            fetchRecycledItems();
-        } catch (err) {
-            console.error("Empty bin error:", err);
-            alert("Error emptying recycle bin.");
-        }
-    });
+    fetchDeletedFeedback();
 });
 
-async function fetchRecycledItems() {
+async function fetchDeletedFeedback() {
     try {
-        const response = await fetch(`${BASE_URL}/api/feedback/recyclebin`);
-        const result = await response.json();
-        populateRecycleBinTable(result.data);
-    } catch (error) {
+        const res = await fetch(`${BASE_URL}/api/feedback/recyclebin`);
+        const result = await res.json();
+        populateFeedbackTable(result.data);
+    } catch (err) {
+        console.error(err);
         document.querySelector("#recycle-bin-table tbody").innerHTML =
             "<tr><td colspan='5'>Error loading items.</td></tr>";
-        console.error("Fetch recycle bin error:", error);
     }
 }
 
-function populateRecycleBinTable(data) {
+function populateFeedbackTable(data) {
     const tbody = document.querySelector("#recycle-bin-table tbody");
 
     if (!data || data.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='5'>Recycle bin is empty.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='5'>Recycle bin empty.</td></tr>";
         return;
     }
 
@@ -91,13 +65,21 @@ function populateRecycleBinTable(data) {
         <tr>
             <td>${item.id}</td>
             <td>${item.name}</td>
-            <td>${item.email}</td>
+            <td>${item.rating}</td>
             <td>${item.feedback}</td>
-            <td>${new Date(item.submitted_at).toLocaleString()}</td>
+            <td>
+                <button onclick="restoreItem(${item.id})">Restore</button>
+            </td>
         </tr>`
         )
         .join("");
 }
+
+async function restoreItem(id) {
+    await fetch(`${BASE_URL}/api/feedback/recyclebin/restore/${id}`, { method: "POST" });
+    fetchDeletedFeedback();
+}
+
 </script>
 
 </body>
