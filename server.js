@@ -1,35 +1,38 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-const db = require('./database.js');
-const bcrypt = require('bcryptjs');
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const db = require("./database.js");
+const bcrypt = require("bcryptjs");
 
 const app = express();
 const port = process.env.PORT || 3000;
 const host = "0.0.0.0";
 
-// -----------------------------
+
+// ------------------------------------------------------------------
 // CORS SETTINGS
-// -----------------------------
-app.use(cors({
-    origin: ["https://smart-indoor-navigation-system-for-gmu.onrender.com"],
-    methods: ["GET", "POST", "DELETE"],
-    allowedHeaders: ["Content-Type"]
-}));
+// ------------------------------------------------------------------
+app.use(
+    cors({
+        origin: ["https://smart-indoor-navigation-system-for-gmu.onrender.com"],
+        methods: ["GET", "POST", "DELETE"],
+        allowedHeaders: ["Content-Type"],
+    })
+);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Serve frontend from public folder
+// Serve frontend from /public
 app.use(express.static("public"));
 
 
-// ===================================================================
-//                      FEEDBACK MODULE
-// ===================================================================
+// ==================================================================
+//                         FEEDBACK MODULE
+// ==================================================================
 
 // Submit feedback
-app.post('/api/feedback', (req, res) => {
+app.post("/api/feedback", (req, res) => {
     const { name, email, rating, feedback } = req.body;
 
     if (!name || !email || rating === undefined || !feedback) {
@@ -48,8 +51,8 @@ app.post('/api/feedback', (req, res) => {
     stmt.finalize();
 });
 
-// Get active feedback
-app.get('/api/feedback', (req, res) => {
+// List active feedback
+app.get("/api/feedback", (req, res) => {
     db.all(
         "SELECT * FROM feedback WHERE is_deleted = 0 ORDER BY submitted_at DESC",
         [],
@@ -61,20 +64,23 @@ app.get('/api/feedback', (req, res) => {
 });
 
 // Move feedback to recycle bin
-app.delete('/api/feedback', (req, res) => {
-    db.run("UPDATE feedback SET is_deleted = 1 WHERE is_deleted = 0", function (err) {
-        if (err) return res.status(500).json({ message: "Error deleting feedback." });
-        res.json({ success: true, message: `${this.changes} moved to recycle bin.` });
-    });
+app.delete("/api/feedback", (req, res) => {
+    db.run(
+        "UPDATE feedback SET is_deleted = 1 WHERE is_deleted = 0",
+        function (err) {
+            if (err) return res.status(500).json({ message: "Error deleting feedback." });
+            res.json({ success: true, message: `${this.changes} moved to recycle bin.` });
+        }
+    );
 });
 
 
-// ===================================================================
-//               FEEDBACK RECYCLE BIN MODULE
-// ===================================================================
+// ==================================================================
+//                     FEEDBACK RECYCLE BIN
+// ==================================================================
 
 // Get deleted feedback
-app.get('/api/feedback/recyclebin', (req, res) => {
+app.get("/api/feedback/recyclebin", (req, res) => {
     db.all(
         "SELECT * FROM feedback WHERE is_deleted = 1 ORDER BY submitted_at DESC",
         [],
@@ -85,8 +91,8 @@ app.get('/api/feedback/recyclebin', (req, res) => {
     );
 });
 
-// Restore deleted feedback
-app.post('/api/feedback/recyclebin/restore/:id', (req, res) => {
+// Restore feedback
+app.post("/api/feedback/recyclebin/restore/:id", (req, res) => {
     db.run(
         "UPDATE feedback SET is_deleted = 0 WHERE id = ?",
         [req.params.id],
@@ -97,8 +103,8 @@ app.post('/api/feedback/recyclebin/restore/:id', (req, res) => {
     );
 });
 
-// Empty feedback recycle bin
-app.delete('/api/feedback/recyclebin/empty', (req, res) => {
+// Permanently delete all from recycle bin
+app.delete("/api/feedback/recyclebin/empty", (req, res) => {
     db.run(
         "DELETE FROM feedback WHERE is_deleted = 1",
         function (err) {
@@ -108,8 +114,8 @@ app.delete('/api/feedback/recyclebin/empty', (req, res) => {
     );
 });
 
-// Get average rating
-app.get('/api/feedback/average', (req, res) => {
+// Feedback average rating
+app.get("/api/feedback/average", (req, res) => {
     db.get(
         "SELECT AVG(rating) AS average FROM feedback WHERE is_deleted = 0",
         [],
@@ -121,12 +127,12 @@ app.get('/api/feedback/average', (req, res) => {
 });
 
 
-// ===================================================================
-//                       ADMIN UPDATE LOG MODULE
-// ===================================================================
+// ==================================================================
+//                       UPDATE LOGS MODULE
+// ==================================================================
 
-// Log new update
-app.post('/api/logs', (req, res) => {
+// Create log update
+app.post("/api/logs", (req, res) => {
     const { description } = req.body;
 
     if (!description) {
@@ -136,6 +142,7 @@ app.post('/api/logs', (req, res) => {
     const stmt = db.prepare(
         "INSERT INTO update_logs (admin_user, description) VALUES (?, ?)"
     );
+
     stmt.run("admin", description, function (err) {
         if (err) return res.status(500).json({ message: "Error saving log." });
         res.json({ message: "Log saved.", id: this.lastID });
@@ -144,8 +151,8 @@ app.post('/api/logs', (req, res) => {
     stmt.finalize();
 });
 
-// Get active logs
-app.get('/api/logs', (req, res) => {
+// List active logs
+app.get("/api/logs", (req, res) => {
     db.all(
         "SELECT * FROM update_logs WHERE is_deleted = 0 ORDER BY timestamp DESC",
         [],
@@ -157,23 +164,23 @@ app.get('/api/logs', (req, res) => {
 });
 
 // Move logs to recycle bin
-app.delete('/api/logs', (req, res) => {
+app.delete("/api/logs", (req, res) => {
     db.run(
         "UPDATE update_logs SET is_deleted = 1 WHERE is_deleted = 0",
         function (err) {
             if (err) return res.status(500).json({ message: "Error deleting logs." });
-            res.json({ success: true, message: `${this.changes} logs moved.` });
+            res.json({ success: true, message: `${this.changes} logs moved to recycle bin.` });
         }
     );
 });
 
 
-// ===================================================================
-//                      LOG RECYCLE BIN MODULE
-// ===================================================================
+// ==================================================================
+//                        LOG RECYCLE BIN
+// ==================================================================
 
 // Get deleted logs
-app.get('/api/logs/recyclebin', (req, res) => {
+app.get("/api/logs/recyclebin", (req, res) => {
     db.all(
         "SELECT * FROM update_logs WHERE is_deleted = 1 ORDER BY timestamp DESC",
         [],
@@ -184,8 +191,8 @@ app.get('/api/logs/recyclebin', (req, res) => {
     );
 });
 
-// Restore deleted log
-app.post('/api/logs/recyclebin/restore/:id', (req, res) => {
+// Restore log
+app.post("/api/logs/recyclebin/restore/:id", (req, res) => {
     db.run(
         "UPDATE update_logs SET is_deleted = 0 WHERE id = ?",
         [req.params.id],
@@ -196,8 +203,8 @@ app.post('/api/logs/recyclebin/restore/:id', (req, res) => {
     );
 });
 
-// Empty log recycle bin
-app.delete('/api/logs/recyclebin/empty', (req, res) => {
+// Empty log recycle bin (permanent delete)
+app.delete("/api/logs/recyclebin/empty", (req, res) => {
     db.run(
         "DELETE FROM update_logs WHERE is_deleted = 1",
         function (err) {
@@ -208,10 +215,10 @@ app.delete('/api/logs/recyclebin/empty', (req, res) => {
 });
 
 
-// ===================================================================
-//                       LOGIN MODULE
-// ===================================================================
-app.post('/api/login', (req, res) => {
+// ==================================================================
+//                      LOGIN MODULE
+// ==================================================================
+app.post("/api/login", (req, res) => {
     const { username, password } = req.body;
 
     db.get("SELECT * FROM users WHERE username = ?", [username], (err, user) => {
@@ -220,7 +227,7 @@ app.post('/api/login', (req, res) => {
         if (!user) return res.status(401).json({ message: "Invalid credentials." });
 
         bcrypt.compare(password, user.password, (err, match) => {
-            if (err) return res.status(500).json({ message: "Error comparing passwords." });
+            if (err) return res.status(500).json({ message: "Password error." });
 
             if (match) res.json({ success: true, message: "Login successful" });
             else res.status(401).json({ message: "Invalid credentials." });
@@ -229,7 +236,7 @@ app.post('/api/login', (req, res) => {
 });
 
 
-// ===================================================================
+// ==================================================================
 app.listen(port, host, () => {
     console.log(`Server running on http://${host}:${port}`);
 });
