@@ -9,7 +9,12 @@ const port = process.env.PORT || 3000;
 const host = '0.0.0.0';
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: "https://smart-indoor-navigation-system-for-gmu.onrender.com",
+    methods: ["GET", "POST", "DELETE"],
+    allowedHeaders: ["Content-Type"]
+}));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
