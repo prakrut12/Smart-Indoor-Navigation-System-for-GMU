@@ -1,4 +1,4 @@
-const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
+const BASE_URL = "https://gmu-nav.onrender.com";
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginSection = document.getElementById('login-section');
