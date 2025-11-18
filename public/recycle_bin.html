@@ -109,14 +109,8 @@
 </html>
 ```
 
-#### 4. Update `admin.html`
 
-I'll add a link to the new Recycle Bin page.
 
-```diff
---- a/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.html
-+++ b/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.html
-@@ -25,7 +25,11 @@
          <!-- Feedback Section (hidden by default) -->
          <div id="feedback-section" style="display: none;">
              <h2>Submitted Feedback</h2>
@@ -130,37 +124,5 @@ I'll add a link to the new Recycle Bin page.
                  <!-- Feedback will be populated here by JavaScript -->
              </table>
 
-```
 
-#### 5. Update `admin.css`
 
-I'll add a small style adjustment for the new button layout.
-
-```diff
---- a/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.css
-+++ b/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.css
-@@ -66,6 +66,8 @@
- 
- .admin-actions {
-     margin-bottom: 20px;
-+    display: flex;
-+    gap: 10px;
- }
- .error-message {
-     color: #d9534f;
-
-```
-
-### How to Use the Recycle Bin
-
-1.  **Restart Your Server:** Stop the server (`Ctrl + C`) and start it again with `npm start`. The database will update automatically.
-2.  **Clear Feedback:** On the admin dashboard, the "Clear All Feedback" button will now move items to the recycle bin instead of deleting them.
-3.  **View Recycle Bin:** Click the new "Recycle Bin" button to go to a page showing all the cleared feedback.
-4.  **Manage Items:** On the recycle bin page, you can either **Restore** individual items or click **Empty Recycle Bin** to delete them permanently.
-
-This provides a much safer and more feature-rich way to manage your feedback data.
-
-<!--
-[PROMPT_SUGGESTION]How can I add a "delete" button for individual feedback entries on the main admin page?[/PROMPT_SUGGESTION]
-[PROMPT_SUGGESTION]Can you help me display the average rating on the admin dashboard?[/PROMPT_SUGGESTION]
--->
