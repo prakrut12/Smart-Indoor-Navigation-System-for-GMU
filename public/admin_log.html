@@ -42,125 +42,109 @@
     </div>
 
     <script>
-    const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
+const BASE_URL = "https://gmu-nav.onrender.com";
 
-    document.addEventListener('DOMContentLoaded', async () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    // Authentication
+    if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
+        window.location.href = "admin.html";
+        return;
+    }
 
-        // Check login
-        if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
-            window.location.href = 'admin.html';
+    await fetchLogs();
+
+    // Handle new update submission
+    document.getElementById("log-form").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const description = document.getElementById("update_description").value.trim();
+        if (!description) {
+            alert("Please enter a description.");
             return;
         }
 
-        const logForm = document.getElementById('log-form');
-        const logSuccessMessage = document.getElementById('log-success');
-        const clearLogsBtn = document.getElementById('clear-logs-btn');
-
-        // Load existing logs
-        await fetchLogs();
-
-        // Log new update
-        logForm.addEventListener('submit', async (event) => {
-            event.preventDefault();
-
-            const description = document.getElementById('update_description').value;
-
-            try {
-                const response = await fetch(`${BASE_URL}/api/logs`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ description }),
-                });
-
-                if (response.ok) {
-                    logSuccessMessage.textContent = 'Update logged successfully!';
-                    logForm.reset();
-                    await fetchLogs();
-                    setTimeout(() => logSuccessMessage.textContent = '', 3000);
-                } else {
-                    alert("Failed to log update.");
-                }
-            } catch (error) {
-                alert("An error occurred.");
-                console.error("Log error:", error);
-            }
-        });
-
-        // Clear all logs (move to recycle bin)
-        clearLogsBtn.addEventListener('click', async () => {
-            const isConfirmed = confirm('Are you sure you want to move all logs to the recycle bin?');
-
-            if (isConfirmed) {
-                try {
-                    const response = await fetch(`${BASE_URL}/api/logs`, {
-                        method: 'DELETE'
-                    });
-
-                    const result = await response.json();
-                    alert(result.message);
-
-                    if (response.ok) {
-                        await fetchLogs();
-                    }
-                } catch (error) {
-                    alert('An error occurred while clearing logs.');
-                    console.error("Clear logs error:", error);
-                }
-            }
-        });
-    });
-
-    // Fetch logs
-    async function fetchLogs() {
         try {
-            const response = await fetch(`${BASE_URL}/api/logs`);
+            const response = await fetch(`${BASE_URL}/api/logs`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ description })
+            });
+
             const result = await response.json();
 
-            populateLogTable(result.data);
+            if (response.ok) {
+                alert("Update Log Saved!");
+                document.getElementById("update_description").value = "";
+                fetchLogs();  // Refresh table
+            } else {
+                alert(result.message || "Failed to save update.");
+            }
+
         } catch (error) {
-            const logTable = document.getElementById('log-table');
-            logTable.innerHTML = '<tr><td>Error loading update logs.</td></tr>';
-            console.error('Fetch logs error:', error);
+            alert("Error saving log.");
+            console.error(error);
         }
+    });
+
+    // Clear all logs → move to recycle bin
+    document.getElementById("clear-logs-btn").addEventListener("click", async () => {
+        const confirmDelete = confirm("Move all logs to recycle bin?");
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch(`${BASE_URL}/api/logs`, { method: "DELETE" });
+            const result = await response.json();
+            alert(result.message);
+            fetchLogs();
+        } catch (err) {
+            alert("Error clearing logs.");
+            console.error(err);
+        }
+    });
+});
+
+// Fetch logs
+async function fetchLogs() {
+    try {
+        const response = await fetch(`${BASE_URL}/api/logs`);
+        const result = await response.json();
+        populateLogTable(result.data);
+    } catch (err) {
+        document.getElementById("log-table").innerHTML = "<tr><td colspan='4'>Error loading logs.</td></tr>";
+        console.error(err);
+    }
+}
+
+// Populate table
+function populateLogTable(logs) {
+    const table = document.getElementById("log-table");
+
+    if (!logs || logs.length === 0) {
+        table.innerHTML = "<tr><td colspan='4'>No update logs found.</td></tr>";
+        return;
     }
 
-    // Display logs
-    function populateLogTable(logData) {
-        const table = document.getElementById('log-table');
-        if (!table) return;
-
-        let tableHTML = `
-            <thead>
+    table.innerHTML = `
+        <thead>
+            <tr>
+                <th>Log ID</th>
+                <th>Admin User</th>
+                <th>Description</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${logs.map(log => `
                 <tr>
-                    <th>Log ID</th>
-                    <th>Admin User</th>
-                    <th>Description</th>
-                    <th>Timestamp</th>
+                    <td>${log.id}</td>
+                    <td>${log.admin_user}</td>
+                    <td>${log.description}</td>
+                    <td>${new Date(log.timestamp).toLocaleString()}</td>
                 </tr>
-            </thead>
-            <tbody>
-        `;
-
-        if (!logData || logData.length === 0) {
-            tableHTML += `<tr><td colspan="4">No update logs found.</td></tr>`;
-        } else {
-            logData.forEach(item => {
-                tableHTML += `
-                    <tr>
-                        <td>${item.id}</td>
-                        <td>${item.admin_user}</td>
-                        <td>${item.description}</td>
-                        <td>${new Date(item.timestamp).toLocaleString()}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        tableHTML += '</tbody>';
-        table.innerHTML = tableHTML;
-    }
-
-    window.fetchLogs = fetchLogs;
+            `).join("")}
+        </tbody>
+    `;
+}
 </script>
 
 
