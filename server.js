@@ -12,7 +12,6 @@ const host = '0.0.0.0';
 app.use(cors({
   origin: [
     "https://smart-indoor-navigation-system-for-gmu.onrender.com",
-    "https://gmu-nav.onrender.com"
   ],
   methods: ["GET", "POST", "DELETE"],
   allowedHeaders: ["Content-Type"]
