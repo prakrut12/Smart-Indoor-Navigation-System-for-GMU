@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Recycle Bin</title>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Recycle Bin</h1>
+        <p>Items here have been removed from the main feedback view. You can restore them or delete them permanently.</p>
+        
+        <div class="admin-actions">
+            <a href="admin.html" class="btn">&larr; Back to Feedback</a>
+            <button id="empty-bin-btn" class="btn btn--danger">Empty Recycle Bin</button>
+        </div>
+
+        <table id="recycle-bin-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Rating</th>
+                    <th>Feedback</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Authentication check
+            if (sessionStorage.getItem('isAdminLoggedIn') !== 'true') {
+                window.location.href = 'admin.html';
+                return;
+            }
+
+            const emptyBinBtn = document.getElementById('empty-bin-btn');
+            fetchRecycledItems();
+
+            emptyBinBtn.addEventListener('click', async () => {
+                const isConfirmed = confirm('Are you sure you want to PERMANENTLY DELETE all items in the recycle bin? This action cannot be undone.');
+                if (isConfirmed) {
+                    try {
+                        const response = await fetch('http://localhost:3000/api/recyclebin/empty', { method: 'DELETE' });
+                        const result = await response.json();
+                        alert(result.message);
+                        fetchRecycledItems(); // Refresh the view
+                    } catch (error) {
+                        alert('An error occurred while emptying the recycle bin.');
+                        console.error('Empty bin error:', error);
+                    }
+                }
+            });
+        });
+
+        async function fetchRecycledItems() {
+            try {
+                const response = await fetch('http://localhost:3000/api/recyclebin');
+                const result = await response.json();
+                populateRecycleBinTable(result.data);
+            } catch (error) {
+                document.getElementById('recycle-bin-table').innerHTML = '<tr><td colspan="5">Error loading items.</td></tr>';
+                console.error('Fetch recycle bin error:', error);
+            }
+        }
+
+        function populateRecycleBinTable(data) {
+            const tableBody = document.querySelector('#recycle-bin-table tbody');
+            if (!data || data.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;">Recycle bin is empty.</td></tr>';
+                return;
+            }
+
+            tableBody.innerHTML = data.map(item => `
+                <tr>
+                    <td>${item.id}</td>
+                    <td>${item.name}</td>
+                    <td>${item.rating || 'N/A'}</td>
+                    <td>${item.feedback}</td>
+                    <td>
+                        <button class="btn btn--sm" onclick="restoreItem(${item.id})">Restore</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function restoreItem(id) {
+            try {
+                const response = await fetch(`http://localhost:3000/api/recyclebin/restore/${id}`, { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    fetchRecycledItems(); // Refresh the list
+                } else {
+                    alert(result.message || 'Failed to restore item.');
+                }
+            } catch (error) {
+                alert('An error occurred during restoration.');
+                console.error('Restore error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+```
+
+#### 4. Update `admin.html`
+
+I'll add a link to the new Recycle Bin page.
+
+```diff
+--- a/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.html
++++ b/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.html
+@@ -25,7 +25,11 @@
+         <!-- Feedback Section (hidden by default) -->
+         <div id="feedback-section" style="display: none;">
+             <h2>Submitted Feedback</h2>
+-            <a href="admin_log.html" class="btn" style="text-decoration: none; margin-bottom: 20px; display: inline-block;">View Update Log &rarr;</a>
++            <div class="admin-actions">
++                <a href="admin_log.html" class="btn">View Update Log &rarr;</a>
++                <a href="recycle_bin.html" class="btn">Recycle Bin &rarr;</a>
++                <button id="clear-feedback-btn" class="btn btn--danger">Clear All Feedback</button>
++            </div>
+             <table id="feedback-table">
+                 <!-- Feedback will be populated here by JavaScript -->
+             </table>
+
+```
+
+#### 5. Update `admin.css`
+
+I'll add a small style adjustment for the new button layout.
+
+```diff
+--- a/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.css
++++ b/c:\Users\Prakruthi S\Downloads\finalll\navigation-main\admin.css
+@@ -66,6 +66,8 @@
+ 
+ .admin-actions {
+     margin-bottom: 20px;
++    display: flex;
++    gap: 10px;
+ }
+ .error-message {
+     color: #d9534f;
+
+```
+
+### How to Use the Recycle Bin
+
+1.  **Restart Your Server:** Stop the server (`Ctrl + C`) and start it again with `npm start`. The database will update automatically.
+2.  **Clear Feedback:** On the admin dashboard, the "Clear All Feedback" button will now move items to the recycle bin instead of deleting them.
+3.  **View Recycle Bin:** Click the new "Recycle Bin" button to go to a page showing all the cleared feedback.
+4.  **Manage Items:** On the recycle bin page, you can either **Restore** individual items or click **Empty Recycle Bin** to delete them permanently.
+
+This provides a much safer and more feature-rich way to manage your feedback data.
+
+<!--
+[PROMPT_SUGGESTION]How can I add a "delete" button for individual feedback entries on the main admin page?[/PROMPT_SUGGESTION]
+[PROMPT_SUGGESTION]Can you help me display the average rating on the admin dashboard?[/PROMPT_SUGGESTION]
+-->
