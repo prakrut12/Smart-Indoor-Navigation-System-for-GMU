@@ -1,7 +1,7 @@
 // This function is linked from admin_log.html
 async function fetchLogs() {
     try {
-        const response = await fetch('https://gmu-nav.onrender.com');
+        const response = await fetch('https://gmu-nav.onrender.com/api/logs');
         if (!response.ok) {
             throw new Error('Failed to fetch logs.');
         }
