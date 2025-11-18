@@ -1,18 +1,29 @@
 const BASE_URL = "https://gmu-nav.onrender.com";
 
 // Fetch and display logs
-async function fetchLogs() {
+//  NEW FUNCTION — Create Log
+async function createLog(description) {
     try {
-        const response = await fetch(`${BASE_URL}/api/logs`);
-        if (!response.ok) {
-            throw new Error("Failed to fetch logs.");
-        }
+        const response = await fetch(`${BASE_URL}/api/logs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                admin_user: "admin",   // REQUIRED FIELD
+                description: description
+            })
+        });
+
         const result = await response.json();
-        populateLogTable(result.data);
+
+        if (response.ok) {
+            alert("Update logged successfully!");
+            fetchLogs(); // refresh table
+        } else {
+            alert(result.message || "Failed to log update.");
+        }
     } catch (error) {
-        document.getElementById("log-table").innerHTML =
-            "<tr><td>Error loading update logs.</td></tr>";
-        console.error("Fetch logs error:", error);
+        alert("Error logging update.");
+        console.error("Create log error:", error);
     }
 }
 
