@@ -1,4 +1,4 @@
-const BASE_URL = "https://gmu-nav.onrender.com";
+const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
 // Fetch and display logs
 //  NEW FUNCTION — Create Log
