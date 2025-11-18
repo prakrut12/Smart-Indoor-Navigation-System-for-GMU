@@ -31,88 +31,51 @@
     </div>
 
 <script>
-const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";  // YOUR LIVE BACKEND
+const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
-    if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
-        window.location.href = "admin.html";
-        return;
-    }
-
-    fetchRecycledItems();
-
-    document.getElementById("empty-bin-btn").addEventListener("click", async () => {
-        if (!confirm("Permanently delete ALL logs?")) return;
-
-        try {
-            const response = await fetch(`${BASE_URL}/api/logs/recyclebin/empty`, {
-                method: "DELETE"
-            });
-            const result = await response.json();
-            alert(result.message);
-            fetchRecycledItems();
-        } catch (err) {
-            alert("Error emptying recycle bin.");
-            console.error(err);
-        }
-    });
+    fetchDeletedLogs();
 });
 
-// Fetch deleted logs
-async function fetchRecycledItems() {
+async function fetchDeletedLogs() {
     try {
-        const response = await fetch(`${BASE_URL}/api/logs/recyclebin`);
-        const result = await response.json();
-        populateRecycleBinTable(result.data);
+        const res = await fetch(`${BASE_URL}/api/logs/recyclebin`);
+        const result = await res.json();
+        populateLogTable(result.data);
     } catch (err) {
-        document.querySelector("#recycle-bin-table tbody").innerHTML =
-            "<tr><td colspan='5'>Error loading items.</td></tr>";
         console.error(err);
+        document.querySelector("#logs-table tbody").innerHTML =
+            "<tr><td colspan='4'>Error loading logs.</td></tr>";
     }
 }
 
-// Build rows
-function populateRecycleBinTable(data) {
-    const tbody = document.querySelector("#recycle-bin-table tbody");
+function populateLogTable(data) {
+    const tbody = document.querySelector("#logs-table tbody");
 
     if (!data || data.length === 0) {
-        tbody.innerHTML =
-            "<tr><td colspan='5' style='text-align:center;'>Recycle bin is empty.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='4'>Recycle bin empty.</td></tr>";
         return;
     }
 
-    tbody.innerHTML = data.map(item => `
+    tbody.innerHTML = data
+        .map(
+            item => `
         <tr>
             <td>${item.id}</td>
             <td>${item.admin_user}</td>
             <td>${item.description}</td>
             <td>${new Date(item.timestamp).toLocaleString()}</td>
-            <td>
-                <button class="btn btn--sm" onclick="restoreItem(${item.id})">Restore</button>
-            </td>
-        </tr>
-    `).join("");
+            <td><button onclick="restoreLog(${item.id})">Restore</button></td>
+        </tr>`
+        )
+        .join("");
 }
 
-// Restore log
-async function restoreItem(id) {
-    try {
-        const response = await fetch(`${BASE_URL}/api/logs/recyclebin/restore/${id}`, {
-            method: "POST"
-        });
-        const result = await response.json();
-
-        if (response.ok) {
-            alert("Restored!");
-            fetchRecycledItems();
-        } else {
-            alert(result.message || "Failed to restore.");
-        }
-    } catch (err) {
-        alert("Error restoring log.");
-        console.error(err);
-    }
+async function restoreLog(id) {
+    await fetch(`${BASE_URL}/api/logs/recyclebin/restore/${id}`, { method: "POST" });
+    fetchDeletedLogs();
 }
+
 </script>
 
 </body>
