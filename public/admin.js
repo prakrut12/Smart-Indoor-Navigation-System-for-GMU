@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const API_BASE = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
+
     const loginSection = document.getElementById('login-section');
     const feedbackSection = document.getElementById('feedback-section');
     const loginForm = document.getElementById('login-form');
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch('http://localhost:3000/api/login', {
+            const response = await fetch(`${API_BASE}/api/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
@@ -39,8 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchAverageRating() {
         try {
-            const response = await fetch('http://localhost:3000/api/feedback/average');
+            const response = await fetch(`${API_BASE}/api/feedback/average`);
             const result = await response.json();
+
             if (response.ok) {
                 averageRatingElement.textContent = `Overall Performance: ${Number(result.average).toFixed(2)} / 5`;
             } else {
@@ -51,19 +54,20 @@ document.addEventListener('DOMContentLoaded', () => {
             averageRatingElement.textContent = `Overall Performance: Error loading rating`;
         }
     }
+
     clearFeedbackBtn.addEventListener('click', async () => {
-        // Confirmation dialog to prevent accidental deletion
         const isConfirmed = confirm('Are you sure you want to move all feedback to the recycle bin?');
 
         if (isConfirmed) {
             try {
-                const response = await fetch('http://localhost:3000/api/feedback', {
+                const response = await fetch(`${API_BASE}/api/feedback`, {
                     method: 'DELETE',
                 });
+
                 const result = await response.json();
                 alert(result.message);
+
                 if (response.ok) {
-                    // Refresh the feedback table to show it's empty
                     showFeedback();
                 }
             } catch (error) {
@@ -72,16 +76,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
     async function showFeedback() {
         loginSection.style.display = 'none';
         feedbackSection.style.display = 'block';
         await fetchAverageRating();
 
         try {
-            const response = await fetch('http://localhost:3000/api/feedback');
-            if (!response.ok) {
-                throw new Error('Failed to fetch feedback.');
-            }
+            const response = await fetch(`${API_BASE}/api/feedback`);
+            if (!response.ok) throw new Error('Failed to fetch feedback.');
+
             const result = await response.json();
             populateFeedbackTable(result.data);
         } catch (error) {
@@ -106,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </thead>
             <tbody>
         `;
+
         feedbackData.forEach(item => {
             tableHTML += `
                 <tr>
@@ -118,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </tr>
             `;
         });
+
         tableHTML += '</tbody>';
         table.innerHTML = tableHTML;
     }
