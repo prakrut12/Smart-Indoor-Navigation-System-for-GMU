@@ -269,68 +269,6 @@
 
     <script src="app.js"></script>
     <script>
-        document.querySelector('.feedback__form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-
-            const form = event.target;
-            const name = form.querySelector('#name').value;
-            const email = form.querySelector('#email').value;
-            const rating = form.querySelector('input[name="rating"]:checked')?.value || 0;
-            const feedback = form.querySelector('#feedback').value;
-            const submitButton = form.querySelector('button[type="submit"]');
-
-            const originalButtonText = submitButton.textContent;
-            submitButton.textContent = 'Submitting...';
-            submitButton.disabled = true;
-
-           const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";;
-
-fetch(${BASE_URL}/api/feedback, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        name,
-        email,
-        rating,
-        feedback
-    })
-})
-.then(response => response.json())
-.then(data => {
-    alert("Feedback submitted successfully!");
-    submitBtn.textContent = "Submit";
-    submitBtn.disabled = false;
-})
-.catch(error => {
-    console.error("Error:", error);
-    alert("Sorry, something went wrong. Please try again later.");
-    submitBtn.textContent = "Submit";
-    submitBtn.disabled = false;
-});
-
-                body: JSON.stringify({ name, email, rating, feedback }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                alert('Thank you for your feedback!');
-                form.reset(); // Clear the form
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('Sorry, something went wrong. Please try again later.');
-            })
-            .finally(() => {
-                submitButton.textContent = originalButtonText;
-                submitButton.disabled = false;
-            });
-        });
-    </script>
-</body>
-</html> 
-
-<script>
 document.querySelector('.feedback__form').addEventListener('submit', function(event) {
     event.preventDefault();
 
@@ -343,23 +281,23 @@ document.querySelector('.feedback__form').addEventListener('submit', function(ev
     const submitButton = form.querySelector('button[type="submit"]');
     const originalButtonText = submitButton.textContent;
 
-    submitButton.textContent = 'Submitting...';
+    submitButton.textContent = "Submitting...";
     submitButton.disabled = true;
 
-    const BASE_URL = "https://gmu-nav.onrender.com";
+    const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
     fetch(`${BASE_URL}/api/feedback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, rating, feedback })
     })
-    .then(response => response.json())
+    .then(res => res.json())
     .then(data => {
-        alert("Thank you! Feedback submitted successfully.");
+        alert("Thank you for your feedback!");
         form.reset();
     })
-    .catch(error => {
-        console.error("Error:", error);
+    .catch(err => {
+        console.error(err);
         alert("Sorry, something went wrong. Please try again later.");
     })
     .finally(() => {
