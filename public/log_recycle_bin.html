@@ -16,6 +16,7 @@
             <button id="empty-bin-btn" class="btn btn--danger">Empty Recycle Bin</button>
         </div>
 
+        <!-- CORRECT TABLE ID -->
         <table id="recycle-bin-table">
             <thead>
                 <tr>
@@ -35,45 +36,80 @@ const BASE_URL = "https://smart-indoor-navigation-system-for-gmu.onrender.com";
 
 document.addEventListener("DOMContentLoaded", () => {
     fetchDeletedLogs();
+
+    document.getElementById("empty-bin-btn").addEventListener("click", emptyLogBin);
 });
 
+
+// Fetch deleted logs
 async function fetchDeletedLogs() {
     try {
         const res = await fetch(`${BASE_URL}/api/logs/recyclebin`);
         const result = await res.json();
         populateLogTable(result.data);
     } catch (err) {
-        console.error(err);
-        document.querySelector("#logs-table tbody").innerHTML =
-            "<tr><td colspan='4'>Error loading logs.</td></tr>";
+        console.error("Fetch deleted logs error:", err);
+        document.querySelector("#recycle-bin-table tbody").innerHTML =
+            "<tr><td colspan='5'>Error loading logs.</td></tr>";
     }
 }
 
+
+// Populate table
 function populateLogTable(data) {
-    const tbody = document.querySelector("#logs-table tbody");
+    const tbody = document.querySelector("#recycle-bin-table tbody");
 
     if (!data || data.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='4'>Recycle bin empty.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='5'>Recycle bin empty.</td></tr>";
         return;
     }
 
-    tbody.innerHTML = data
-        .map(
-            item => `
+    tbody.innerHTML = data.map(item => `
         <tr>
             <td>${item.id}</td>
             <td>${item.admin_user}</td>
             <td>${item.description}</td>
             <td>${new Date(item.timestamp).toLocaleString()}</td>
-            <td><button onclick="restoreLog(${item.id})">Restore</button></td>
-        </tr>`
-        )
-        .join("");
+            <td>
+                <button class="btn" onclick="restoreLog(${item.id})">Restore</button>
+            </td>
+        </tr>
+    `).join("");
 }
 
+
+// Restore one log
 async function restoreLog(id) {
-    await fetch(`${BASE_URL}/api/logs/recyclebin/restore/${id}`, { method: "POST" });
-    fetchDeletedLogs();
+    try {
+        await fetch(`${BASE_URL}/api/logs/recyclebin/restore/${id}`, {
+            method: "POST"
+        });
+
+        alert("Log restored!");
+        fetchDeletedLogs();
+    } catch (err) {
+        alert("Error restoring log.");
+        console.error(err);
+    }
+}
+
+
+// Empty recycle bin
+async function emptyLogBin() {
+    if (!confirm("Permanently delete ALL logs?")) return;
+
+    try {
+        const res = await fetch(`${BASE_URL}/api/logs/recyclebin/empty`, {
+            method: "DELETE"
+        });
+        const result = await res.json();
+        alert(result.message);
+
+        fetchDeletedLogs();
+    } catch (err) {
+        alert("Error emptying log bin.");
+        console.error(err);
+    }
 }
 
 </script>
