@@ -1,121 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Update Log</title>
-    <link rel="stylesheet" href="admin.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Admin Update Log</h1>
-        <p>This page will show a history of all updates made by the admin.</p>
-        <a href="admin.html" class="btn" style="margin-bottom: 20px; display: inline-block;">&larr; Back to Feedback</a>
-        <div class="admin-actions">
-            <a href="log_recycle_bin.html" class="btn">Recycle Bin &rarr;</a>
-            <button id="clear-logs-btn" class="btn btn--danger">Clear All Logs</button>
-        </div>
-
-        <!-- Form to log a new update -->
-        <div id="log-update-section">
-            <h2>Log a New Update</h2>
-            <form id="log-form">
-                <div class="form-group">
-                    <label for="update_description">Update Description</label>
-                    <textarea id="update_description" required placeholder="Describe the change you made (e.g., 'Updated the homepage hero image')."></textarea>
-                </div>
-                <button type="button" id="log-btn" onclick="createLog(document.getElementById('update_description').value)">
-    Log This Update
-</button>
-
-                <p id="log-success" style="color: green; margin-top: 10px;"></p>
-            </form>
-        </div>
-
-        <!-- Log History Section -->
-        <div id="log-history-section" style="margin-top: 30px;">
-            <h2>Update History</h2>
-            <table id="log-table">
-                <!-- Log history will be populated here -->
-            </table>
-        </div>
-    </div>
-
-    <script>
+<script>
 const BASE_URL = "https://gmu-nav.onrender.com";
 
-document.addEventListener("DOMContentLoaded", async () => {
-    // Authentication
-    if (sessionStorage.getItem("isAdminLoggedIn") !== "true") {
-        window.location.href = "admin.html";
+// 1️⃣ Load logs when page opens
+document.addEventListener("DOMContentLoaded", () => {
+    fetchLogs();
+
+    document.getElementById("log-update-btn").addEventListener("click", logUpdate);
+});
+
+// 2️⃣ Log button function
+async function logUpdate() {
+    const description = document.getElementById("update_description").value.trim();
+
+    if (!description) {
+        alert("Please enter a description.");
         return;
     }
 
-    await fetchLogs();
+    try {
+        const response = await fetch(`${BASE_URL}/api/logs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ description })
+        });
 
-    // Handle new update submission
-    document.getElementById("log-form").addEventListener("submit", async (event) => {
-        event.preventDefault();
+        const result = await response.json();
 
-        const description = document.getElementById("update_description").value.trim();
-        if (!description) {
-            alert("Please enter a description.");
-            return;
+        if (response.ok) {
+            alert("Update logged successfully!");
+            document.getElementById("update_description").value = "";
+            fetchLogs(); // refresh table
+        } else {
+            alert(result.message || "Failed to log update.");
         }
+    } catch (error) {
+        alert("Error logging update.");
+        console.error(error);
+    }
+}
 
-        try {
-            const response = await fetch(`${BASE_URL}/api/logs`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ description })
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                alert("Update Log Saved!");
-                document.getElementById("update_description").value = "";
-                fetchLogs();  // Refresh table
-            } else {
-                alert(result.message || "Failed to save update.");
-            }
-
-        } catch (error) {
-            alert("Error saving log.");
-            console.error(error);
-        }
-    });
-
-    // Clear all logs → move to recycle bin
-    document.getElementById("clear-logs-btn").addEventListener("click", async () => {
-        const confirmDelete = confirm("Move all logs to recycle bin?");
-        if (!confirmDelete) return;
-
-        try {
-            const response = await fetch(`${BASE_URL}/api/logs`, { method: "DELETE" });
-            const result = await response.json();
-            alert(result.message);
-            fetchLogs();
-        } catch (err) {
-            alert("Error clearing logs.");
-            console.error(err);
-        }
-    });
-});
-
-// Fetch logs
+// 3️⃣ Fetch logs from server
 async function fetchLogs() {
     try {
         const response = await fetch(`${BASE_URL}/api/logs`);
         const result = await response.json();
         populateLogTable(result.data);
-    } catch (err) {
-        document.getElementById("log-table").innerHTML = "<tr><td colspan='4'>Error loading logs.</td></tr>";
-        console.error(err);
+    } catch (error) {
+        console.error("Fetch logs error:", error);
+        document.getElementById("log-table").innerHTML =
+            "<tr><td colspan='4'>Error loading logs.</td></tr>";
     }
 }
 
-// Populate table
+// 4️⃣ Display logs on table
 function populateLogTable(logs) {
     const table = document.getElementById("log-table");
 
@@ -124,29 +61,15 @@ function populateLogTable(logs) {
         return;
     }
 
-    table.innerHTML = `
-        <thead>
+    table.innerHTML = logs
+        .map(log => `
             <tr>
-                <th>Log ID</th>
-                <th>Admin User</th>
-                <th>Description</th>
-                <th>Timestamp</th>
+                <td>${log.id}</td>
+                <td>${log.admin_user}</td>
+                <td>${log.description}</td>
+                <td>${new Date(log.timestamp).toLocaleString()}</td>
             </tr>
-        </thead>
-        <tbody>
-            ${logs.map(log => `
-                <tr>
-                    <td>${log.id}</td>
-                    <td>${log.admin_user}</td>
-                    <td>${log.description}</td>
-                    <td>${new Date(log.timestamp).toLocaleString()}</td>
-                </tr>
-            `).join("")}
-        </tbody>
-    `;
+        `)
+        .join("");
 }
 </script>
-
-
-</body>
-</html>
