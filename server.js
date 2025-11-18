@@ -68,6 +68,32 @@ app.delete('/api/feedback', (req, res) => {
         res.status(200).json({ success: true, message: `${this.changes} feedback items moved to the recycle bin.` });
     });
 });
+// --- Correct Feedback Recycle Bin Endpoints (Frontend expects these) ---
+
+// Get deleted feedback (correct path)
+app.get('/api/feedback/recyclebin', (req, res) => {
+    db.all("SELECT id, name, email, rating, feedback, submitted_at FROM feedback WHERE is_deleted = 1 ORDER BY submitted_at DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "success", data: rows });
+    });
+});
+
+// Restore from feedback recycle bin (correct path)
+app.post('/api/feedback/recyclebin/restore/:id', (req, res) => {
+    const { id } = req.params;
+    db.run("UPDATE feedback SET is_deleted = 0 WHERE id = ?", [id], function(err) {
+        if (err) return res.status(500).json({ success: false, message: "Failed to restore feedback." });
+        res.json({ success: true, message: "Feedback restored successfully." });
+    });
+});
+
+// Empty feedback recycle bin permanently (correct path)
+app.delete('/api/feedback/recyclebin/empty', (req, res) => {
+    db.run("DELETE FROM feedback WHERE is_deleted = 1", function(err) {
+        if (err) return res.status(500).json({ success: false, message: "Failed to empty recycle bin." });
+        res.json({ success: true, message: `Recycle bin emptied. ${this.changes} items deleted.` });
+    });
+});
 
 // --- Recycle Bin Endpoints ---
 
